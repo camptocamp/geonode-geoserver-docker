@@ -1,45 +1,27 @@
 version: '2'
 
+
 services:
 
   geoserver:
-    image: geonode/geoserver
-    build:
-      context: .
-      args:
-        - DOCKER_HOST
-        - PUBLIC_PORT=80
+    image: camptocamp/geonode_geoserver
+    build: .
     links:
       - postgis
     ports:
       - "8080:8080"
-    #volumes:
-      #- /srv/docker/geoserver/geoserver:/geoserver_data
-    volumes_from:
-      # reference to the service which has the volume with the preloaded geoserver_data_dir
-      - data_dir_conf # service for geoserver data volume
-    environment:
-      - DOCKER_HOST
-      - PUBLIC_PORT=80
-      - DOCKER_HOST_IP
-      - DJANGO_URL=http://localhost/
-  
-  data_dir_conf:
-    image: geonode/geoserver_data:2.9.x-oauth2
-    container_name: geoserver_data_dir # named data container
-    command: /bin/true
     volumes:
-      - /geoserver_data/data
+      - geoserver_datadir:/usr/local/tomcat/webapps/geoserver/data
 
   postgis:
     image: kartoza/postgis
     ports:
-      - "25432:5432"
+      - "54322:5432"
     volumes:
-      - /srv/docker/geoserver/postgis:/var/lib/postgresql
-    #volumes_from:
-      #- pgstore
+      - postgis_data:/var/lib/postgresql
+
 
 volumes:
   # reference to the named data container that holds the preloaded geoserver data directory 
-  geoserver_data_dir:
+  geoserver_datadir:
+  postgis_data:

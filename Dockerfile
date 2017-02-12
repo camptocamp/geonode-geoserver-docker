@@ -1,58 +1,29 @@
 FROM tomcat:9-jre8
-MAINTAINER GeoNode Development Team
+
+MAINTAINER francois.vanderbiest@camptocamp.com
 
 #
 # Set GeoServer version and data directory
 #
-ENV GEOSERVER_VERSION=2.9.x-oauth2
-ENV GEOSERVER_DATA_DIR="/geoserver_data/data"
+ENV GEOSERVER_VERSION=2.9.x
 
 #
 # Download and install GeoServer
 #
-RUN cd /usr/local/tomcat/webapps \
-    && wget --progress=bar:force:noscroll http://build.geonode.org/geoserver/latest/geoserver-${GEOSERVER_VERSION}.war \
-    && unzip -q geoserver-${GEOSERVER_VERSION}.war -d geoserver \
-    && rm geoserver-${GEOSERVER_VERSION}.war \
-    && mkdir -p $GEOSERVER_DATA_DIR
 
-VOLUME $GEOSERVER_DATA_DIR
+# TODO: once it works, copy those remote resources locally.
+RUN wget --progress=bar:force:noscroll http://build.geonode.org/geoserver/latest/geoserver-${GEOSERVER_VERSION}.war -O /geoserver.war \
+    && unzip -q /geoserver.war -d /usr/local/tomcat/webapps/geoserver \
+    && rm -rf /geoserver.war /usr/local/tomcat/webapps/geoserver/data
 
-# Set DOCKER_HOST address
-ARG DOCKER_HOST=${DOCKER_HOST}
-# for debugging
-RUN echo -n DOCKER_HOST=$DOCKER_HOST
-#
-ENV DOCKER_HOST ${DOCKER_HOST}
-# for debugging
-RUN echo -n DOCKER_HOST=$DOCKER_HOST
+RUN wget --progress=bar:force:noscroll http://build.geonode.org/geoserver/latest/data-${GEOSERVER_VERSION}.zip -O /data.zip \
+    && unzip -q /data.zip -d /usr/local/tomcat/webapps/geoserver/data \
+    && rm -f /data.zip
 
-ENV DOCKER_HOST_IP ${DOCKER_HOST_IP}
-RUN echo export DOCKER_HOST_IP=${DOCKER_HOST} | sed 's/tcp:\/\/\([^:]*\).*/\1/' >> /root/.bashrc
+VOLUME [ "/usr/local/tomcat/webapps/geoserver/data" ]
 
-# for debugging
-RUN echo -n DOCKER_HOST_IP=${DOCKER_HOST_IP}
-# ENV DOCKER_HOST_IP ${DOCKER_HOST_IP}
-# Set WEBSERVER public port
-ARG PUBLIC_PORT=${PUBLIC_PORT}
-# for debugging
-RUN echo -n PUBLIC_PORT=${PUBLIC_PORT}
-#
-ENV PUBLIC_PORT=${PUBLIC_PORT}
-# for debugging
-RUN echo -n PUBLIC_PORT=${PUBLIC_PORT}
+COPY scripts/*.sh /
+RUN chmod +x /entrypoint.sh
 
-# set nginx base url for geoserver
-RUN echo export BASE_URL=http://${NGINX_HOST}:${NGINX_PORT}/ | sed 's/tcp:\/\/\([^:]*\).*/\1/' >> /root/.bashrc
-
-# copy the script and perform the change to config.xml
-RUN mkdir -p /usr/local/tomcat/tmp
-WORKDIR /usr/local/tomcat/tmp
-COPY set_geoserver_auth.sh /usr/local/tomcat/tmp
-RUN chmod +x /usr/local/tomcat/tmp/set_geoserver_auth.sh
-
-COPY setup_auth.sh /usr/local/tomcat/tmp
-RUN chmod +x /usr/local/tomcat/tmp/setup_auth.sh
-COPY entrypoint.sh /usr/local/tomcat/tmp/entrypoint.sh
-RUN chmod +x /usr/local/tomcat/tmp/entrypoint.sh
-CMD ["/usr/local/tomcat/tmp/entrypoint.sh"]
+ENTRYPOINT [ "/entrypoint.sh" ]
+CMD ["catalina.sh", "run"]
