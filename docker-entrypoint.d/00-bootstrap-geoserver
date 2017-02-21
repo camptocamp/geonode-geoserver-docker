@@ -1,0 +1,16 @@
+#!/bin/bash
+
+if [ -f /mnt/geoserver_datadir/global.xml ]
+then
+    echo 'Datadir already initialized'
+else
+    echo 'Initializing datadir'
+
+    cp -Rax /mnt/geoserver_datadir.orig/* /mnt/geoserver_datadir/
+    cp -Rax /mnt/geoserver_datadir.orig/.git /mnt/geoserver_datadir/
+    cp -Rax /mnt/geoserver_datadir.orig/.gitignore /mnt/geoserver_datadir/
+
+
+#    echo 'Change rootLogger config according to docker setup'
+#    sed -i 's:log4j.rootLogger=WARN, geoserverlogfile, stdout:log4j.rootLogger=WARN, stdout:g' /mnt/geoserver_datadir/logs/*
+fi

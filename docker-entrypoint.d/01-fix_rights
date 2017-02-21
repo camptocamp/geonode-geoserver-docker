@@ -1,0 +1,3 @@
+#!/bin/bash
+
+chown -R tomcat:tomcat /mnt/geoserver_datadir &
