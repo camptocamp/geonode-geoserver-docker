@@ -33,7 +33,15 @@ VOLUME [ "/mnt/geoserver_datadir" ]
 
 COPY docker-entrypoint.d/* /docker-entrypoint.d/
 COPY docker-entrypoint.sh /docker-entrypoint.sh
+
 RUN chmod +x /docker-entrypoint.sh
+# Change user that run tomcat to UID 999
+
+RUN addgroup --system --gid 999 tomcat \
+    && adduser --system --home /usr/local/tomcat --no-create-home --uid 999 --ingroup tomcat --disabled-login tomcat \
+    && chown -R tomcat:tomcat /usr/local/tomcat
+
+USER tomcat
 
 ENTRYPOINT [ "/docker-entrypoint.sh" ]
 CMD ["catalina.sh", "run"]
