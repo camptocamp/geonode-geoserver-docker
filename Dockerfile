@@ -41,7 +41,7 @@ RUN addgroup --system --gid 999 tomcat \
     && adduser --system --home /usr/local/tomcat --no-create-home --uid 999 --ingroup tomcat --disabled-login tomcat \
     && chown -R tomcat:tomcat /usr/local/tomcat
 
-USER tomcat
+#USER tomcat
 
 ENTRYPOINT [ "/docker-entrypoint.sh" ]
 CMD ["catalina.sh", "run"]
