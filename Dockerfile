@@ -35,6 +35,12 @@ RUN wget --progress=bar:force:noscroll http://build.geonode.org/geoserver/latest
     && sed -i.bak 's@<baseUrl>\([^<][^<]*\)</baseUrl>@<baseUrl>'"$DJANGO_URL"'</baseUrl>@'\
                   /mnt/geoserver_datadir.orig/security/auth/geonodeAuthProvider/config.xml
 
+
+# Install Marlin
+RUN cd /usr/local/tomcat/lib && wget https://github.com/bourgesl/marlin-renderer/releases/download/v0.7.5_2/marlin-0.7.5-Unsafe.jar && \
+    wget https://github.com/bourgesl/marlin-renderer/releases/download/v0.7.5_2/marlin-0.7.5-Unsafe-sun-java2d.jar
+
+ENV CATALINA_OPTS "-Xbootclasspath/a:/usr/local/tomcat/lib/marlin-0.7.5-Unsafe.jar -Xbootclasspath/p:/usr/local/tomcat/lib/marlin-0.7.5-Unsafe-sun-java2d.jar -Dsun.java2d.renderer=org.marlin.pisces.MarlinRenderingEngine" 
 ENV JAVA_OPTS=-DGEOSERVER_DATA_DIR=/mnt/geoserver_datadir
 
 VOLUME [ "/mnt/geoserver_datadir" ]
