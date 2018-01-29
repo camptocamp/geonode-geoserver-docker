@@ -57,5 +57,12 @@ RUN addgroup --system --gid 999 tomcat \
 
 #USER tomcat
 
+# Change serviceStrategy to PARTIAL-BUFFER2
+ADD set_serviceStrategy.augtool /
+RUN apt update && \
+    apt install -y augeas-tools augeas-lenses && \
+    rm -rf /var/lib/apt/lists/* && \
+    cat /set_serviceStrategy.augtool | augtool --noload --noautoload --echo
+
 ENTRYPOINT [ "/docker-entrypoint.sh" ]
 CMD ["catalina.sh", "run"]
