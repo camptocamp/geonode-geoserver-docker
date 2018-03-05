@@ -40,10 +40,10 @@ RUN wget --progress=bar:force:noscroll http://build.geonode.org/geoserver/latest
 RUN cd /usr/local/tomcat/lib && wget https://github.com/bourgesl/marlin-renderer/releases/download/v0.7.5_2/marlin-0.7.5-Unsafe.jar && \
     wget https://github.com/bourgesl/marlin-renderer/releases/download/v0.7.5_2/marlin-0.7.5-Unsafe-sun-java2d.jar
 
-ENV CATALINA_OPTS "-Xbootclasspath/a:/usr/local/tomcat/lib/marlin-0.7.5-Unsafe.jar -Xbootclasspath/p:/usr/local/tomcat/lib/marlin-0.7.5-Unsafe-sun-java2d.jar -Dsun.java2d.renderer=org.marlin.pisces.MarlinRenderingEngine" 
-ENV JAVA_OPTS "-DGEOSERVER_DATA_DIR=/mnt/geoserver_datadir -Xms2G -Xmx4G"
+ENV CATALINA_OPTS "-Xbootclasspath/a:/usr/local/tomcat/lib/marlin-0.7.5-Unsafe.jar -Xbootclasspath/p:/usr/local/tomcat/lib/marlin-0.7.5-Unsafe-sun-java2d.jar -Dsun.java2d.renderer=org.marlin.pisces.MarlinRenderingEngine"
+ENV JAVA_OPTS "-Djava.io.tmpdir=/mnt/geoserver_geodata/java.io.tmpdir/ -DGEOSERVER_DATA_DIR=/mnt/geoserver_datadir -Xms2G -Xmx4G"
 
-VOLUME [ "/mnt/geoserver_datadir", "/usr/local/tomcat/logs/" ]
+VOLUME ["/mnt/geoserver_geodata", "/mnt/geoserver_datadir", "/usr/local/tomcat/logs/" ]
 
 COPY docker-entrypoint.d/* /docker-entrypoint.d/
 COPY docker-entrypoint.sh /docker-entrypoint.sh
